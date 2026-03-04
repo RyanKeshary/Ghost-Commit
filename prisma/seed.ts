@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
-import path from 'path'
+import * as dotenv from "dotenv";
+dotenv.config();
+import { prisma } from '../src/lib/prisma';
 
-const dbPath = path.resolve(process.cwd(), 'dev.db')
-const adapter = new PrismaBetterSqlite3({ url: dbPath })
-const prisma = new PrismaClient({ adapter })
+
 
 async function main() {
     console.log('Seeding database...')
@@ -14,6 +12,8 @@ async function main() {
     await prisma.match.deleteMany()
     await prisma.application.deleteMany()
     await prisma.project.deleteMany()
+    await prisma.block.deleteMany()
+    await prisma.report.deleteMany()
     await prisma.developer.deleteMany()
     await prisma.user.deleteMany()
 

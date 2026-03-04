@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "npx prisma": true,
+        "npx tsx": true,
+        "y": true,
+        "npm install": true
+    }
+}
