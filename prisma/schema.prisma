@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  semester      Int
+  department    String
+  skills        String    // Stored as comma-separated string for SQLite compatibility
+  interests     String?
+  lookingFor    String?
+  bio           String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  ownedProjects Project[] @relation("OwnedProjects")
+  applications  Application[]
+  
+  // Connections (Matches)
+  matchesInitiated Match[] @relation("MatchesInitiated")
+  matchesReceived  Match[] @relation("MatchesReceived")
+
+  // Messages
+  messagesSent     Message[] @relation("SentMessages")
+  messagesReceived Message[] @relation("ReceivedMessages")
+}
+
+model Project {
+  id             String    @id @default(cuid())
+  title          String
+  description    String
+  requiredSkills String    // Comma-separated
+  semester       Int?
+  department     String?
+  status         String    @default("Open") // Open, Closed
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  ownerId        String
+  owner          User      @relation("OwnedProjects", fields: [ownerId], references: [id])
+  
+  applications   Application[]
+}
+
+model Application {
+  id        String    @id @default(cuid())
+  status    String    @default("Pending") // Pending, Accepted, Rejected
+  createdAt DateTime  @default(now())
+  
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id])
+  
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+}
+
+model Match {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  user1Id   String
+  user1     User     @relation("MatchesInitiated", fields: [user1Id], references: [id])
+  
+  user2Id   String
+  user2     User     @relation("MatchesReceived", fields: [user2Id], references: [id])
+
+  @@unique([user1Id, user2Id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  
+  receiverId  String
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
